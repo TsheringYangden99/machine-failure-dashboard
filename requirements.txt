@@ -3,5 +3,5 @@ numpy==1.26.4
 pandas
 plotly
 joblib
-scikit-learn==1.4.2
+scikit-learn==1.7.1
 lightgbm
