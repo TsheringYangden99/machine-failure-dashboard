@@ -1,7 +1,4 @@
 streamlit==1.32.2
 numpy==1.26.4
-pandas==2.2.2
-plotly
-joblib
+scipy>=1.10
 scikit-learn==1.4.2
-lightgbm
