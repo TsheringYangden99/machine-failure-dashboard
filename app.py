@@ -67,7 +67,7 @@ section[data-testid="stSidebar"] label {
     background-color: #ff2e2e;
 }
 
-/* METRICS (IMPORTANT FIX) */
+/* METRICS */
 div[data-testid="metric-container"] {
     background-color: #111827;
     border: 1px solid #222;
@@ -156,10 +156,21 @@ if st.sidebar.button("🔮 Predict Failure"):
     gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=probability * 100,
-        title={'text': "Failure Risk (%)"},
+
+        # FIXED CENTER NUMBER
+        number={
+            'font': {'size': 60}
+        },
+
+        title={
+            'text': "Failure Risk (%)"
+        },
+
         gauge={
             'axis': {'range': [0, 100]},
+
             'bar': {'color': "red"},
+
             'steps': [
                 {'range': [0, 40], 'color': "green"},
                 {'range': [40, 70], 'color': "yellow"},
@@ -169,10 +180,21 @@ if st.sidebar.button("🔮 Predict Failure"):
     ))
 
     gauge.update_layout(
-        height=400,
+        height=500,
         paper_bgcolor="#0E1117",
         plot_bgcolor="#0E1117",
-        font=dict(color="white")
+
+        font=dict(
+            color="white",
+            size=20
+        ),
+
+        margin=dict(
+            t=50,
+            b=20,
+            l=20,
+            r=20
+        )
     )
 
     # ---------------- DASHBOARD ----------------
@@ -193,6 +215,7 @@ if st.sidebar.button("🔮 Predict Failure"):
         st.progress(int(probability * 100))
 
         st.write("### 📝 Machine Summary")
+
         st.info(f"""
         - Machine Type: {machine_type}
         - Tool Wear: {tool_wear} min
