@@ -15,12 +15,12 @@ st.set_page_config(
 # ---------------- LOAD MODEL ----------------
 model = joblib.load("model.pkl")
 
-# ---------------- CUSTOM CSS ----------------
+# ---------------- CUSTOM CSS (FIXED DARK THEME) ----------------
 st.markdown("""
 <style>
 
-/* BACKGROUND */
-.stApp {
+/* GLOBAL BACKGROUND */
+.stApp, .main {
     background-color: #0E1117;
     color: #FFFFFF;
 }
@@ -67,12 +67,17 @@ section[data-testid="stSidebar"] label {
     background-color: #ff2e2e;
 }
 
-/* METRICS BASE STYLE */
+/* METRICS (IMPORTANT FIX) */
 div[data-testid="metric-container"] {
     background-color: #111827;
     border: 1px solid #222;
     padding: 15px;
     border-radius: 12px;
+}
+
+[data-testid="stMetricValue"] {
+    color: #00FFAA !important;
+    font-size: 26px !important;
 }
 
 [data-testid="stMetricLabel"] {
@@ -98,7 +103,7 @@ st.markdown("<div class='subtitle'>Real-Time Industrial Equipment Monitoring usi
 
 st.write("")
 
-# ---------------- SIDEBAR ----------------
+# ---------------- SIDEBAR INPUTS ----------------
 st.sidebar.header("⚙️ Machine Inputs")
 
 machine_type = st.sidebar.selectbox("Machine Type", ["L", "M", "H"])
@@ -109,6 +114,7 @@ rpm = st.sidebar.slider("Rotational Speed (RPM)", 1000.0, 3000.0, 1500.0)
 torque = st.sidebar.slider("Torque (Nm)", 0.0, 100.0, 40.0)
 tool_wear = st.sidebar.slider("Tool Wear (min)", 0.0, 300.0, 10.0)
 
+# ---------------- ENCODING ----------------
 type_M = 1 if machine_type == "M" else 0
 type_L = 1 if machine_type == "L" else 0
 
@@ -135,32 +141,8 @@ if st.sidebar.button("🔮 Predict Failure"):
     # ---------------- KPI CARDS ----------------
     col1, col2, col3 = st.columns(3)
 
-    # FIXED NON-MOVING PERCENTAGE CARD
     with col1:
-        risk_color = "#00FFAA" if probability < 0.5 else "#F59E0B" if probability < 0.8 else "#FF4B4B"
-
-        st.markdown(f"""
-        <div style="
-            background-color:#111827;
-            padding:15px;
-            border-radius:12px;
-            border:1px solid #222;
-            text-align:center;
-        ">
-            <div style="color:#B0B0B0; font-size:14px;">
-                Failure Probability
-            </div>
-            <div style="
-                color:{risk_color};
-                font-size:28px;
-                font-weight:bold;
-                font-family:monospace;
-                letter-spacing:1px;
-            ">
-                {probability*100:06.2f} %
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.metric("Failure Probability", f"{round(probability*100, 2)} %")
 
     with col2:
         st.metric("Machine RPM", f"{rpm}")
@@ -177,11 +159,11 @@ if st.sidebar.button("🔮 Predict Failure"):
         title={'text': "Failure Risk (%)"},
         gauge={
             'axis': {'range': [0, 100]},
-            'bar': {'color': "#FF4B4B"},
+            'bar': {'color': "red"},
             'steps': [
-                {'range': [0, 40], 'color': "#1F2937"},
-                {'range': [40, 70], 'color': "#374151"},
-                {'range': [70, 100], 'color': "#FF4B4B"}
+                {'range': [0, 40], 'color': "green"},
+                {'range': [40, 70], 'color': "yellow"},
+                {'range': [70, 100], 'color': "red"}
             ],
         }
     ))
@@ -193,6 +175,7 @@ if st.sidebar.button("🔮 Predict Failure"):
         font=dict(color="white")
     )
 
+    # ---------------- DASHBOARD ----------------
     col4, col5 = st.columns([2, 1])
 
     with col4:
