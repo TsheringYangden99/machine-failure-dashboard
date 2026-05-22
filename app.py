@@ -15,89 +15,104 @@ st.set_page_config(
 # ---------------- LOAD MODEL ----------------
 model = joblib.load("model.pkl")
 
-# ---------------- CUSTOM CSS ----------------
+# ---------------- CUSTOM CSS (FIXED DARK THEME) ----------------
 st.markdown("""
-    <style>
-    .main {
-        background-color: #0E1117;
-    }
+<style>
 
-    .stButton>button {
-        width: 100%;
-        border-radius: 10px;
-        height: 3em;
-        background-color: #FF4B4B;
-        color: white;
-        font-size: 18px;
-        border: none;
-    }
+/* GLOBAL BACKGROUND */
+.stApp, .main {
+    background-color: #0E1117;
+    color: #FFFFFF;
+}
 
-    .stButton>button:hover {
-        background-color: #ff2e2e;
-        color: white;
-    }
+/* SIDEBAR */
+section[data-testid="stSidebar"] {
+    background-color: #111827;
+}
 
-    .title {
-        text-align: center;
-        color: white;
-        font-size: 40px;
-        font-weight: bold;
-    }
+section[data-testid="stSidebar"] label {
+    color: #FFFFFF !important;
+    font-weight: 500;
+}
 
-    .subtitle {
-        text-align: center;
-        color: #B0B0B0;
-        font-size: 18px;
-        margin-bottom: 20px;
-    }
-    </style>
+/* TITLE */
+.title {
+    text-align: center;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+}
+
+/* SUBTITLE */
+.subtitle {
+    text-align: center;
+    color: #CCCCCC;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+/* BUTTON */
+.stButton>button {
+    width: 100%;
+    border-radius: 10px;
+    height: 3em;
+    background-color: #FF4B4B;
+    color: white;
+    font-size: 18px;
+    border: none;
+    font-weight: bold;
+}
+
+.stButton>button:hover {
+    background-color: #ff2e2e;
+}
+
+/* METRICS (IMPORTANT FIX) */
+div[data-testid="metric-container"] {
+    background-color: #111827;
+    border: 1px solid #222;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+[data-testid="stMetricValue"] {
+    color: #00FFAA !important;
+    font-size: 26px !important;
+}
+
+[data-testid="stMetricLabel"] {
+    color: #B0B0B0 !important;
+}
+
+/* PROGRESS BAR */
+.stProgress > div > div > div > div {
+    background-color: #00FFAA;
+}
+
+/* ALERT BOX */
+.stAlert {
+    border-radius: 10px;
+}
+
+</style>
 """, unsafe_allow_html=True)
 
 # ---------------- HEADER ----------------
-st.markdown(
-    "<div class='title'>⚙️ AI Machine Failure Prediction Dashboard</div>",
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    "<div class='subtitle'>Real-Time Industrial Equipment Monitoring using LightGBM</div>",
-    unsafe_allow_html=True
-)
+st.markdown("<div class='title'>⚙️ AI Machine Failure Prediction Dashboard</div>", unsafe_allow_html=True)
+st.markdown("<div class='subtitle'>Real-Time Industrial Equipment Monitoring using LightGBM</div>", unsafe_allow_html=True)
 
 st.write("")
 
-# ---------------- SIDEBAR ----------------
+# ---------------- SIDEBAR INPUTS ----------------
 st.sidebar.header("⚙️ Machine Inputs")
 
-machine_type = st.sidebar.selectbox(
-    "Machine Type",
-    ["L", "M", "H"]
-)
+machine_type = st.sidebar.selectbox("Machine Type", ["L", "M", "H"])
 
-air_temp = st.sidebar.slider(
-    "Air Temperature (K)",
-    290.0, 320.0, 298.0
-)
-
-process_temp = st.sidebar.slider(
-    "Process Temperature (K)",
-    300.0, 340.0, 308.0
-)
-
-rpm = st.sidebar.slider(
-    "Rotational Speed (RPM)",
-    1000.0, 3000.0, 1500.0
-)
-
-torque = st.sidebar.slider(
-    "Torque (Nm)",
-    0.0, 100.0, 40.0
-)
-
-tool_wear = st.sidebar.slider(
-    "Tool Wear (min)",
-    0.0, 300.0, 10.0
-)
+air_temp = st.sidebar.slider("Air Temperature (K)", 290.0, 320.0, 298.0)
+process_temp = st.sidebar.slider("Process Temperature (K)", 300.0, 340.0, 308.0)
+rpm = st.sidebar.slider("Rotational Speed (RPM)", 1000.0, 3000.0, 1500.0)
+torque = st.sidebar.slider("Torque (Nm)", 0.0, 100.0, 40.0)
+tool_wear = st.sidebar.slider("Tool Wear (min)", 0.0, 300.0, 10.0)
 
 # ---------------- ENCODING ----------------
 type_M = 1 if machine_type == "M" else 0
@@ -106,7 +121,6 @@ type_L = 1 if machine_type == "L" else 0
 # ---------------- PREDICTION ----------------
 if st.sidebar.button("🔮 Predict Failure"):
 
-    # Loading animation
     with st.spinner("Predicting Machine Failure..."):
 
         input_data = np.array([[
@@ -122,33 +136,23 @@ if st.sidebar.button("🔮 Predict Failure"):
         prediction = model.predict(input_data)
         probability = model.predict_proba(input_data)[0][1]
 
-    # Popup notification
     st.toast("✅ Prediction Completed")
 
     # ---------------- KPI CARDS ----------------
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.metric(
-            label="Failure Probability",
-            value=f"{round(probability*100,2)} %"
-        )
+        st.metric("Failure Probability", f"{round(probability*100, 2)} %")
 
     with col2:
-        st.metric(
-            label="Machine RPM",
-            value=f"{rpm}"
-        )
+        st.metric("Machine RPM", f"{rpm}")
 
     with col3:
-        st.metric(
-            label="Torque",
-            value=f"{torque} Nm"
-        )
+        st.metric("Torque", f"{torque} Nm")
 
     st.divider()
 
-    # ---------------- GAUGE CHART ----------------
+    # ---------------- GAUGE ----------------
     gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=probability * 100,
@@ -167,7 +171,8 @@ if st.sidebar.button("🔮 Predict Failure"):
     gauge.update_layout(
         height=400,
         paper_bgcolor="#0E1117",
-        font={'color': "white"}
+        plot_bgcolor="#0E1117",
+        font=dict(color="white")
     )
 
     # ---------------- DASHBOARD ----------------
@@ -182,14 +187,12 @@ if st.sidebar.button("🔮 Predict Failure"):
 
         if prediction[0] == 1:
             st.error("⚠️ High Risk of Failure")
-            st.progress(int(probability * 100))
-
         else:
             st.success("✅ Machine Operating Normally")
-            st.progress(int(probability * 100))
+
+        st.progress(int(probability * 100))
 
         st.write("### 📝 Machine Summary")
-
         st.info(f"""
         - Machine Type: {machine_type}
         - Tool Wear: {tool_wear} min
@@ -199,41 +202,29 @@ if st.sidebar.button("🔮 Predict Failure"):
 
     st.divider()
 
-    # ---------------- FEATURE VISUALIZATION ----------------
+    # ---------------- BAR CHART ----------------
     chart_data = pd.DataFrame({
-        "Feature": [
-            "Air Temp",
-            "Process Temp",
-            "RPM",
-            "Torque",
-            "Tool Wear"
-        ],
-        "Value": [
-            air_temp,
-            process_temp,
-            rpm,
-            torque,
-            tool_wear
-        ]
+        "Feature": ["Air Temp", "Process Temp", "RPM", "Torque", "Tool Wear"],
+        "Value": [air_temp, process_temp, rpm, torque, tool_wear]
     })
 
     fig = px.bar(
         chart_data,
         x="Feature",
         y="Value",
-        title="📈 Machine Parameters Overview",
-        text="Value"
+        text="Value",
+        title="📈 Machine Parameters Overview"
     )
 
     fig.update_layout(
         paper_bgcolor="#0E1117",
         plot_bgcolor="#0E1117",
-        font_color="white",
-        title_font_size=22
+        font=dict(color="white"),
+        xaxis=dict(color="white", gridcolor="#333333"),
+        yaxis=dict(color="white", gridcolor="#333333")
     )
 
     st.plotly_chart(fig, use_container_width=True)
 
 # ---------------- FOOTER ----------------
-st.write("")
 st.caption("Built with Streamlit + LightGBM + Plotly")
